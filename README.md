@@ -62,6 +62,25 @@ Per dettagli completi sul funzionamento delle nuove funzionalità, consulta il m
 ## 🚀 Iniziamo: Installazione
 
 ### 🐳 Deploy su DOCKER
+
+#### Unraid
+
+È possibile installare facilmente l'addon su Unraid utilizzando il file `docker-compose.unraid.yml` incluso o aggiungendo manualmente il container.
+
+1.  Assicurati di avere un plugin per Docker Compose o utilizza lo stack manager.
+2.  Crea uno stack utilizzando il contenuto del file `docker-compose.unraid.yml`.
+3.  Modifica le variabili d'ambiente se necessario.
+4.  Avvia lo stack.
+
+L'immagine Docker è disponibile su GitHub Container Registry: `ghcr.io/cheatgnome/tv:latest`.
+
+Se preferisci usare il terminale:
+```bash
+wget https://raw.githubusercontent.com/cheatgnome/TV/main/docker-compose.unraid.yml
+docker compose -f docker-compose.unraid.yml up -d
+```
+
+#### Hugging Face / VPS
 - Per poter procedere devi prima fare l'installazione tramite docker su Hugging Face o su VPS.
 - [Segui la guida qui](docker-install.md) e poi ritorna a questa pagina una volta disponibile il sito web del tuo addon.
 - Se tutte queste cose ti sembrano incomprensibili FERMATI; cerca una guida on line su docker, guarda la sezione supporto in basso a questa pagina o chiedi aiuto ad un AI 😊

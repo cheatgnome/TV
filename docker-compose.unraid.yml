@@ -1,0 +1,12 @@
+services:
+  omg-premium-tv:
+    image: ghcr.io/cheatgnome/tv:latest
+    container_name: tv
+    restart: unless-stopped
+    environment:
+      PORT: "10000"
+    volumes:
+      - /mnt/user/appdata/tv/data:/app/data
+      - /mnt/user/appdata/tv/temp:/app/temp
+    ports:
+      - "10000:10000"
