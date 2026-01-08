@@ -2,10 +2,6 @@ const axios = require('axios');
 const { URL } = require('url');
 const config = require('./config');
 
-function getLanguageFromConfig(userConfig) {
-    return userConfig.language || config.defaultLanguage || 'Italiano';
-}
-
 class StreamProxyManager {
     constructor() {
         this.proxyCache = new Map();  // Usato per memorizzare lo stato di salute dei proxy
@@ -99,7 +95,7 @@ class StreamProxyManager {
                 
                 // Log dello stack trace per debug avanzato
             } else {
-                console.error(`  Nessun errore specifico rilevato, controllo fallito senza eccezioni`);
+                console.error('  No specific error reported, check failed without exceptions');
             }
             
             // Log degli headers usati nella richiesta
@@ -114,7 +110,7 @@ class StreamProxyManager {
 
     async buildProxyUrl(streamUrl, headers = {}, userConfig = {}) {
         if (!userConfig.proxy || !userConfig.proxy_pwd || !streamUrl || typeof streamUrl !== 'string') {
-            console.warn('⚠️ buildProxyUrl: Parametri mancanti o non validi');
+            console.warn('⚠️ buildProxyUrl: Missing or invalid parameters');
             return null;
         }
     
@@ -170,6 +166,8 @@ class StreamProxyManager {
         if (input.url.includes(userConfig.proxy)) {
             return [];
         }
+
+        const displayName = input.originalName || input.name;
         
         // Escludi domini specifici dal proxy (anche con Force Proxy abilitato)
         const excludedDomains = [
@@ -180,14 +178,12 @@ class StreamProxyManager {
         const shouldExclude = excludedDomains.some(domain => input.url.includes(domain));
         
         if (shouldExclude) {
-            console.log(`⚠️ Dominio escluso dal proxy: ${input.url}`);
-            const language = getLanguageFromConfig(userConfig);
+            console.log(`⚠️ Domain excluded from proxy: ${input.url}`);
             return [{
                 name: input.name,
-                title: `${input.originalName} [${language.substring(0, 3).toUpperCase()}]`,
+                title: displayName,
                 url: input.url,
                 headers: input.headers,
-                language: language,
                 behaviorHints: {
                     notWebReady: false,
                     bingeGroup: "tv"
@@ -197,7 +193,7 @@ class StreamProxyManager {
         
         // Se il proxy non è configurato, interrompe l'elaborazione
         if (!userConfig.proxy || !userConfig.proxy_pwd) {
-            console.log('⚠️ Proxy non configurato per:', input.name);
+            console.log('⚠️ Proxy not configured for:', input.name);
             return [];
         }
     
@@ -219,7 +215,7 @@ class StreamProxyManager {
             
             // Se il proxy non è sano, prova la versione con slash finale
             if (!isHealthy) {
-                console.log(`⚠️ Proxy non valido, provo versione con slash finale per: ${input.url}`);
+                console.log(`⚠️ Invalid proxy, trying slash-terminated version for: ${input.url}`);
                 
                 // Aggiungi lo slash finale e riprova
                 const urlWithSlash = input.url.endsWith('/') ? input.url : input.url + '/';
@@ -243,30 +239,27 @@ class StreamProxyManager {
                 streamType = 'PHP';
             }
     
-            const language = getLanguageFromConfig(userConfig);
             if (isHealthy) {
                 // Aggiunge lo stream proxato all'array
                 streams.push({
                     name: input.name,
-                    title: `🌐 ${input.originalName} [${language.substring(0, 3).toUpperCase()}]\n[Proxy ${streamType}]`,
+                    title: `🌐 ${displayName}\n[Proxy ${streamType}]`,
                     url: proxyUrl,
-                    language: language,
                     behaviorHints: {
                         notWebReady: false,
                         bingeGroup: "tv"
                     }
                 });
             } else {
-                console.log(`⚠️ Proxy non valido per: ${input.url}, mantengo stream originale`);
+                console.log(`⚠️ Proxy invalid for: ${input.url}, keeping original stream`);
                 
                 // Aggiungi lo stream originale se il proxy non funziona
                 if (userConfig.force_proxy === 'true') {
                     streams.push({
                         name: input.name,
-                        title: `${input.originalName} [${language.substring(0, 3).toUpperCase()}]`,
+                        title: displayName,
                         url: input.url,
                         headers: input.headers,
-                        language: language,
                         behaviorHints: {
                             notWebReady: false,
                             bingeGroup: "tv"
@@ -276,17 +269,15 @@ class StreamProxyManager {
             }
         
         } catch (error) {
-            console.error('❌ Errore durante l\'elaborazione del proxy:', error.message);
+            console.error('❌ Error during proxy processing:', error.message);
             
             // In caso di errore, aggiungi lo stream originale SOLO se force_proxy è attivo
             if (userConfig.force_proxy === 'true') {
-                const language = getLanguageFromConfig(userConfig);
                 streams.push({
                     name: input.name,
-                    title: `${input.originalName} [${language.substring(0, 3).toUpperCase()}]`,
+                    title: displayName,
                     url: input.url,
                     headers: input.headers,
-                    language: language,
                     behaviorHints: {
                         notWebReady: false,
                         bingeGroup: "tv"
