@@ -35,24 +35,24 @@ app.get('/:config/configure', async (req, res) => {
 
         // Inizializza il generatore Python se configurato
         if (decodedConfig.python_script_url) {
-            console.log('Inizializzazione Script Python Generatore dalla configurazione');
+            console.log('Initializing Python generator script from configuration');
             try {
                 // Scarica lo script Python se non già scaricato
                 await PythonRunner.downloadScript(decodedConfig.python_script_url);
 
                 // Se è stato definito un intervallo di aggiornamento, impostalo
                 if (decodedConfig.python_update_interval) {
-                    console.log('Impostazione dell\'aggiornamento automatico del generatore Python');
+                    console.log('Setting automatic update for the Python generator');
                     PythonRunner.scheduleUpdate(decodedConfig.python_update_interval);
                 }
             } catch (pythonError) {
-                console.error('Errore nell\'inizializzazione dello script Python:', pythonError);
+                console.error('Error initializing Python script:', pythonError);
             }
         }
 
         res.send(renderConfigPage(protocol, host, decodedConfig, config.manifest));
     } catch (error) {
-        console.error('Errore nella configurazione:', error);
+        console.error('Configuration error:', error);
         res.redirect('/');
     }
 });
@@ -134,34 +134,34 @@ app.get('/:config/manifest.json', async (req, res) => {
             await global.CacheManager.rebuildCache(decodedConfig.m3u);
         }
         if (decodedConfig.resolver_script) {
-            console.log('Inizializzazione Script Resolver dalla configurazione');
+            console.log('Initializing resolver script from configuration');
             try {
                 // Scarica lo script Resolver
                 const resolverDownloaded = await PythonResolver.downloadScript(decodedConfig.resolver_script);
 
                 // Se è stato definito un intervallo di aggiornamento, impostalo
                 if (decodedConfig.resolver_update_interval) {
-                    console.log('Impostazione dell\'aggiornamento automatico del resolver');
+                    console.log('Setting automatic updates for resolver');
                     PythonResolver.scheduleUpdate(decodedConfig.resolver_update_interval);
                 }
             } catch (resolverError) {
-                console.error('Errore nell\'inizializzazione dello script Resolver:', resolverError);
+                console.error('Error initializing resolver script:', resolverError);
             }
         }
         // Inizializza il generatore Python se configurato
         if (decodedConfig.python_script_url) {
-            console.log('Inizializzazione Script Python Generatore dalla configurazione');
+            console.log('Initializing Python generator script from configuration');
             try {
                 // Scarica lo script Python se non già scaricato
                 await PythonRunner.downloadScript(decodedConfig.python_script_url);
 
                 // Se è stato definito un intervallo di aggiornamento, impostalo
                 if (decodedConfig.python_update_interval) {
-                    console.log('Impostazione dell\'aggiornamento automatico del generatore Python');
+                    console.log('Setting automatic update for the Python generator');
                     PythonRunner.scheduleUpdate(decodedConfig.python_update_interval);
                 }
             } catch (pythonError) {
-                console.error('Errore nell\'inizializzazione dello script Python:', pythonError);
+                console.error('Error initializing Python script:', pythonError);
             }
         }
 
@@ -263,21 +263,21 @@ app.get('/api/resolver/download-template', (req, res) => {
             res.setHeader('Content-Disposition', 'attachment; filename="resolver_script.py"');
             res.sendFile(PythonResolver.scriptPath);
         } else {
-            res.status(404).json({ success: false, message: 'Template non trovato. Crealo prima con la funzione "Crea Template".' });
+            res.status(404).json({ success: false, message: 'Template not found. Create it first using "Create Template".' });
         }
     } catch (error) {
-        console.error('Errore nel download del template:', error);
+        console.error('Error downloading template:', error);
         res.status(500).json({ success: false, message: error.message });
     }
 });
 
 function cleanupTempFolder() {
-    console.log('\n=== Pulizia cartella temp all\'avvio ===');
+    console.log('\n=== Cleaning temp folder on startup ===');
     const tempDir = path.join(__dirname, 'temp');
 
     // Controlla se la cartella temp esiste
     if (!fs.existsSync(tempDir)) {
-        console.log('Cartella temp non trovata, la creo...');
+        console.log('Temp folder not found, creating it...');
         fs.mkdirSync(tempDir, { recursive: true });
         return;
     }
@@ -297,14 +297,14 @@ function cleanupTempFolder() {
                     deletedCount++;
                 }
             } catch (fileError) {
-                console.error(`❌ Errore nell'eliminazione del file ${file}:`, fileError.message);
+                console.error(`❌ Error deleting file ${file}:`, fileError.message);
             }
         }
 
-        console.log(`✓ Eliminati ${deletedCount} file temporanei`);
-        console.log('=== Pulizia cartella temp completata ===\n');
+        console.log(`✓ Deleted ${deletedCount} temporary files`);
+        console.log('=== Temp folder cleanup completed ===\n');
     } catch (error) {
-        console.error('❌ Errore nella pulizia della cartella temp:', error.message);
+        console.error('❌ Error cleaning temp folder:', error.message);
     }
 }
 
@@ -420,7 +420,7 @@ app.get('/generated-m3u', (req, res) => {
         res.setHeader('Content-Type', 'text/plain');
         res.send(m3uContent);
     } else {
-        res.status(404).send('File M3U non trovato. Eseguire prima lo script Python.');
+        res.status(404).send('M3U file not found. Run the Python script first.');
     }
 });
 
@@ -431,7 +431,7 @@ app.post('/api/resolver', async (req, res) => {
         if (action === 'download' && url) {
             const success = await PythonResolver.downloadScript(url);
             if (success) {
-                res.json({ success: true, message: 'Script resolver scaricato con successo' });
+                res.json({ success: true, message: 'Resolver script downloaded successfully' });
             } else {
                 res.status(500).json({ success: false, message: PythonResolver.getStatus().lastError });
             }
@@ -440,7 +440,7 @@ app.post('/api/resolver', async (req, res) => {
             if (success) {
                 res.json({
                     success: true,
-                    message: 'Template script resolver creato con successo',
+                    message: 'Resolver script template created successfully',
                     scriptPath: PythonResolver.scriptPath
                 });
             } else {
@@ -450,19 +450,19 @@ app.post('/api/resolver', async (req, res) => {
             const isHealthy = await PythonResolver.checkScriptHealth();
             res.json({
                 success: isHealthy,
-                message: isHealthy ? 'Script resolver valido' : PythonResolver.getStatus().lastError
+                message: isHealthy ? 'Resolver script is healthy' : PythonResolver.getStatus().lastError
             });
         } else if (action === 'status') {
             res.json(PythonResolver.getStatus());
         } else if (action === 'clear-cache') {
             PythonResolver.clearCache();
-            res.json({ success: true, message: 'Cache resolver svuotata' });
+            res.json({ success: true, message: 'Resolver cache cleared' });
         } else if (action === 'schedule' && interval) {
             const success = PythonResolver.scheduleUpdate(interval);
             if (success) {
                 res.json({
                     success: true,
-                    message: `Aggiornamento automatico impostato ogni ${interval}`
+                    message: `Automatic updates scheduled every ${interval}`
                 });
             } else {
                 res.status(500).json({ success: false, message: PythonResolver.getStatus().lastError });
@@ -471,13 +471,13 @@ app.post('/api/resolver', async (req, res) => {
             const stopped = PythonResolver.stopScheduledUpdates();
             res.json({
                 success: true,
-                message: stopped ? 'Aggiornamento automatico fermato' : 'Nessun aggiornamento pianificato da fermare'
+                message: stopped ? 'Automatic updates stopped' : 'No scheduled updates to stop'
             });
         } else {
-            res.status(400).json({ success: false, message: 'Azione non valida' });
+            res.status(400).json({ success: false, message: 'Invalid action' });
         }
     } catch (error) {
-        console.error('Errore API Resolver:', error);
+        console.error('Resolver API error:', error);
         res.status(500).json({ success: false, message: error.message });
     }
 });
@@ -486,14 +486,14 @@ app.post('/api/rebuild-cache', async (req, res) => {
     try {
         const m3uUrl = req.body.m3u;
         if (!m3uUrl) {
-            return res.status(400).json({ success: false, message: 'URL M3U richiesto' });
+            return res.status(400).json({ success: false, message: 'M3U URL is required' });
         }
 
-        console.log('🔄 Richiesta di ricostruzione cache ricevuta');
+        console.log('🔄 Cache rebuild request received');
         await global.CacheManager.rebuildCache(req.body.m3u, req.body);
 
         if (req.body.epg_enabled === 'true') {
-            console.log('📡 Ricostruzione EPG in corso...');
+            console.log('📡 Rebuilding EPG...');
             const epgToUse = req.body.epg ||
                 (global.CacheManager.getCachedData().epgUrls && global.CacheManager.getCachedData().epgUrls.length > 0
                     ? global.CacheManager.getCachedData().epgUrls.join(',')
@@ -503,10 +503,10 @@ app.post('/api/rebuild-cache', async (req, res) => {
             }
         }
 
-        res.json({ success: true, message: 'Cache e EPG ricostruiti con successo' });
+        res.json({ success: true, message: 'Cache and EPG rebuilt successfully' });
 
     } catch (error) {
-        console.error('Errore nella ricostruzione della cache:', error);
+        console.error('Cache rebuild error:', error);
         res.status(500).json({ success: false, message: error.message });
     }
 });
@@ -519,7 +519,7 @@ app.post('/api/python-script', async (req, res) => {
         if (action === 'download' && url) {
             const success = await PythonRunner.downloadScript(url);
             if (success) {
-                res.json({ success: true, message: 'Script scaricato con successo' });
+                res.json({ success: true, message: 'Script downloaded successfully' });
             } else {
                 res.status(500).json({ success: false, message: PythonRunner.getStatus().lastError });
             }
@@ -528,7 +528,7 @@ app.post('/api/python-script', async (req, res) => {
             if (success) {
                 res.json({
                     success: true,
-                    message: 'Script eseguito con successo',
+                    message: 'Script executed successfully',
                     m3uUrl: `${req.protocol}://${req.get('host')}/generated-m3u`
                 });
             } else {
@@ -541,7 +541,7 @@ app.post('/api/python-script', async (req, res) => {
             if (success) {
                 res.json({
                     success: true,
-                    message: `Aggiornamento automatico impostato ogni ${interval}`
+                    message: `Automatic updates scheduled every ${interval}`
                 });
             } else {
                 res.status(500).json({ success: false, message: PythonRunner.getStatus().lastError });
@@ -550,13 +550,13 @@ app.post('/api/python-script', async (req, res) => {
             const stopped = PythonRunner.stopScheduledUpdates();
             res.json({
                 success: true,
-                message: stopped ? 'Aggiornamento automatico fermato' : 'Nessun aggiornamento pianificato da fermare'
+                message: stopped ? 'Automatic updates stopped' : 'No scheduled updates to stop'
             });
         } else {
-            res.status(400).json({ success: false, message: 'Azione non valida' });
+            res.status(400).json({ success: false, message: 'Invalid action' });
         }
     } catch (error) {
-        console.error('Errore API Python:', error);
+        console.error('Python API error:', error);
         res.status(500).json({ success: false, message: error.message });
     }
 });

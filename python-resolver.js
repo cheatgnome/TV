@@ -10,7 +10,7 @@ class PythonResolver {
     constructor() {
         this.scriptPath = path.join(__dirname, 'resolver_script.py');
         this.resolvedLinksCache = new Map();
-        this.cacheExpiryTime = 20 * 60 * 1000; // 20 minuti di cache per i link risolti
+        this.cacheExpiryTime = 20 * 60 * 1000; // 20 minutes of cache for resolved links
         this.lastExecution = null;
         this.lastError = null;
         this.isRunning = false;
@@ -26,84 +26,84 @@ class PythonResolver {
     }
 
     /**
-     * Scarica lo script Python resolver dall'URL fornito
-     * @param {string} url - L'URL dello script Python
-     * @returns {Promise<boolean>} - true se il download è avvenuto con successo
+     * Download the Python resolver script from the provided URL
+     * @param {string} url - Script URL
+     * @returns {Promise<boolean>} - true if download succeeded
      */
     async downloadScript(url) {
         try {
-            console.log(`\n=== Download script Python resolver da ${url} ===`);
+            console.log(`\n=== Downloading Python resolver script from ${url} ===`);
             this.scriptUrl = url;
             
             const response = await axios.get(url, { responseType: 'text' });
             fs.writeFileSync(this.scriptPath, response.data);
             
-            // Verifica che lo script contenga la funzione resolve_link
+            // Verify that the script contains resolve_link
             if (!response.data.includes('def resolve_link') && !response.data.includes('def resolve_stream')) {
-                this.lastError = 'Lo script deve contenere una funzione resolve_link o resolve_stream';
+                this.lastError = 'The script must contain a resolve_link or resolve_stream function';
                 console.error(`❌ ${this.lastError}`);
                 return false;
             }
             
             return true;
         } catch (error) {
-            console.error('❌ Errore durante il download dello script Python resolver:', error.message);
-            this.lastError = `Errore download: ${error.message}`;
+            console.error('❌ Error downloading Python resolver script:', error.message);
+            this.lastError = `Download error: ${error.message}`;
             return false;
         }
     }
 
     /**
-     * Verifica la salute dello script resolver
-     * @returns {Promise<boolean>} - true se lo script è valido
+     * Check resolver script health
+     * @returns {Promise<boolean>} - true if script is valid
      */
     async checkScriptHealth() {
         if (!fs.existsSync(this.scriptPath)) {
-            console.error('❌ Script Python resolver non trovato');
-            this.lastError = 'Script Python resolver non trovato';
+            console.error('❌ Python resolver script not found');
+            this.lastError = 'Python resolver script not found';
             return false;
         }
 
         try {
-            // Verifica che Python sia installato
+            // Verify that Python is installed
             await execAsync(`${this.pythonCmd} --version`);
             
-            // Esegui lo script con il parametro --check per verificare la validità
+            // Run the script with --check to verify validity
             const { stdout, stderr } = await execAsync(`${this.pythonCmd} ${this.scriptPath} --check`);
             
             if (stderr && !stderr.includes('resolver_ready')) {
-                console.warn('⚠️ Warning durante la verifica dello script:', stderr);
+                console.warn('⚠️ Warning during script check:', stderr);
             }
             
             return stdout.includes('resolver_ready') || stderr.includes('resolver_ready');
         } catch (error) {
-            console.error('❌ Errore durante la verifica dello script resolver:', error.message);
-            this.lastError = `Errore verifica: ${error.message}`;
+            console.error('❌ Error checking resolver script:', error.message);
+            this.lastError = `Verification error: ${error.message}`;
             return false;
         }
     }
 
 
     /**
-     * Risolve un URL tramite lo script Python
-     * @param {string} url - L'URL da risolvere
-     * @param {object} headers - Gli header da passare allo script
-     * @param {string} channelName - Nome del canale (per logging)
-     * @param {object} proxyConfig - Configurazione del proxy (opzionale)
-     * @returns {Promise<object>} - Oggetto con l'URL risolto e gli header
+     * Resolve a URL via the Python script
+     * @param {string} url - URL to resolve
+     * @param {object} headers - Headers to pass to the script
+     * @param {string} channelName - Channel name (for logging)
+     * @param {object} proxyConfig - Proxy configuration (optional)
+     * @returns {Promise<object>} - Object with resolved URL and headers
      */
     async resolveLink(url, headers = {}, channelName = 'unknown', proxyConfig = null) {
-        // Controllo della cache
+        // Cache check
         const cacheKey = `${url}:${JSON.stringify(headers)}`;
         const cachedResult = this.resolvedLinksCache.get(cacheKey);
         if (cachedResult && (Date.now() - cachedResult.timestamp) < this.cacheExpiryTime) {
-            console.log(`✓ Usando URL in cache per: ${channelName}`);
+            console.log(`✓ Using cached URL for: ${channelName}`);
             return cachedResult.data;
         }
     
         if (!fs.existsSync(this.scriptPath)) {
-            console.error('❌ Script Python resolver non trovato');
-            this.lastError = 'Script Python resolver non trovato';
+            console.error('❌ Python resolver script not found');
+            this.lastError = 'Python resolver script not found';
             return null;
         }
     
@@ -113,7 +113,7 @@ class PythonResolver {
     
         try {
             this.isRunning = true;
-            console.log(`\n=== Risoluzione URL per: ${channelName} ===`);
+            console.log(`\n=== Resolving URL for: ${channelName} ===`);
     
             // Crea un file temporaneo con i parametri di input
             const inputParams = {
@@ -128,13 +128,13 @@ class PythonResolver {
             
             fs.writeFileSync(inputFile, JSON.stringify(inputParams, null, 2));
             
-            // Esegui lo script Python con i parametri
+            // Run the Python script with parameters
             const cmd = `${this.pythonCmd} ${this.scriptPath} --resolve "${inputFile}" "${outputFile}"`;
             
             const { stdout, stderr } = await execAsync(cmd);
             
             if (stderr) {
-                console.warn('⚠️ Warning durante la risoluzione:', stderr);
+                console.warn('⚠️ Warning during resolution:', stderr);
             }
             
             // Leggi il risultato
@@ -152,7 +152,7 @@ class PythonResolver {
                     
                     this.lastExecution = new Date();
                     this.lastError = null;
-                    console.log(`✓ URL risolto per ${channelName}`);
+                    console.log(`✓ URL resolved for ${channelName}`);
     
     
                     // Elimina i file temporanei
@@ -160,25 +160,25 @@ class PythonResolver {
                         fs.unlinkSync(inputFile);
                         fs.unlinkSync(outputFile);
                     } catch (e) {
-                        console.error('Errore nella pulizia dei file temporanei:', e.message);
+                        console.error('Error cleaning temporary files:', e.message);
                     }
                     return result;
                     
                 } catch (parseError) {
-                    console.error('❌ Errore nel parsing del risultato:', parseError.message);
-                    console.error('Contenuto risultato:', resultText);
-                    this.lastError = `Errore parsing: ${parseError.message}`;
+                    console.error('❌ Error parsing result:', parseError.message);
+                    console.error('Result content:', resultText);
+                    this.lastError = `Parsing error: ${parseError.message}`;
                     return null;
                 }
             } else {
-                console.error('❌ File di output non creato');
-                this.lastError = 'File di output non creato';
+                console.error('❌ Output file not created');
+                this.lastError = 'Output file not created';
                 return null;
             }
         } catch (error) {
-            console.error('❌ Errore durante la risoluzione URL:', error.message);
+            console.error('❌ Error resolving URL:', error.message);
             if (error.stderr) console.error('Stderr:', error.stderr);
-            this.lastError = `Errore esecuzione: ${error.message}`;
+            this.lastError = `Execution error: ${error.message}`;
             return null;
         } finally {
             this.isRunning = false;
@@ -186,97 +186,97 @@ class PythonResolver {
     }
 
     /**
-     * Imposta un aggiornamento automatico dello script con la pianificazione specificata
-     * @param {string} timeFormat - Formato orario "HH:MM" o "H:MM"
-     * @returns {boolean} - true se la pianificazione è stata impostata con successo
+     * Schedule automatic script updates
+     * @param {string} timeFormat - Time format "HH:MM" or "H:MM"
+     * @returns {boolean} - true if scheduling succeeded
      */
     scheduleUpdate(timeFormat) {
-        // Ferma eventuali pianificazioni esistenti
+        // Stop existing schedules
         this.stopScheduledUpdates();
         
-        // Validazione del formato orario
+        // Validate time format
         if (!timeFormat || !/^\d{1,2}:\d{2}$/.test(timeFormat)) {
-            console.error('❌ [RESOLVER] Formato orario non valido. Usa HH:MM o H:MM');
-            this.lastError = 'Formato orario non valido. Usa HH:MM o H:MM';
+            console.error('❌ [RESOLVER] Invalid time format. Use HH:MM or H:MM');
+            this.lastError = 'Invalid time format. Use HH:MM or H:MM';
             return false;
         }
         
         try {
-            // Estrai ore e minuti
+            // Extract hours and minutes
             const [hours, minutes] = timeFormat.split(':').map(Number);
             
             if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
-                console.error('❌ [RESOLVER] Orario non valido. Ore: 0-23, Minuti: 0-59');
-                this.lastError = 'Orario non valido. Ore: 0-23, Minuti: 0-59';
+                console.error('❌ [RESOLVER] Invalid time. Hours: 0-23, Minutes: 0-59');
+                this.lastError = 'Invalid time. Hours: 0-23, Minutes: 0-59';
                 return false;
             }
             
-            // Crea una pianificazione cron
+            // Create cron schedule
             let cronExpression;
             
             if (hours === 0) {
-                // Esegui ogni X minuti
+                // Run every X minutes
                 cronExpression = `*/${minutes} * * * *`;
-                console.log(`✓ [RESOLVER] Pianificazione impostata: ogni ${minutes} minuti`);
+                console.log(`✓ [RESOLVER] Schedule set: every ${minutes} minutes`);
             } else {
-                // Esegui ogni X ore
+                // Run every X hours
                 cronExpression = `${minutes} */${hours} * * *`;
-                console.log(`✓ [RESOLVER] Pianificazione impostata: ogni ${hours} ore e ${minutes} minuti`);
+                console.log(`✓ [RESOLVER] Schedule set: every ${hours} hours and ${minutes} minutes`);
             }
             
             this.cronJob = cron.schedule(cronExpression, async () => {
-                console.log(`\n=== [RESOLVER] Aggiornamento automatico script resolver (${new Date().toLocaleString()}) ===`);
+                console.log(`\n=== [RESOLVER] Automatic resolver script update (${new Date().toLocaleString()}) ===`);
                 if (this.scriptUrl) {
                     await this.downloadScript(this.scriptUrl);
                 }
-                // Pulisci la cache dopo l'aggiornamento
+                // Clear cache after update
                 this.resolvedLinksCache.clear();
             });
             
             this.updateInterval = timeFormat;
-            console.log(`✓ [RESOLVER] Aggiornamento automatico configurato: ${timeFormat}`);
+            console.log(`✓ [RESOLVER] Automatic update configured: ${timeFormat}`);
             return true;
         } catch (error) {
-            console.error('❌ [RESOLVER] Errore nella pianificazione:', error.message);
-            this.lastError = `Errore nella pianificazione: ${error.message}`;
+            console.error('❌ [RESOLVER] Scheduling error:', error.message);
+            this.lastError = `Scheduling error: ${error.message}`;
             return false;
         }
     }
     
     /**
-     * Ferma gli aggiornamenti pianificati
+     * Stop scheduled updates
      */
     stopScheduledUpdates() {
         if (this.cronJob) {
             this.cronJob.stop();
             this.cronJob = null;
             this.updateInterval = null;
-            console.log('✓ Aggiornamento automatico fermato');
+            console.log('✓ Automatic updates stopped');
             return true;
         }
         return false;
     }
 
     /**
-     * Pulisce la cache dei link risolti
+     * Clear resolved link cache
      */
     clearCache() {
         this.resolvedLinksCache.clear();
-        console.log('✓ Cache dei link risolti svuotata');
+        console.log('✓ Resolved link cache cleared');
         return true;
     }
 
     /**
-     * Crea un esempio di script resolver
-     * @returns {Promise<boolean>} - true se il template è stato creato con successo
+     * Create a resolver script template
+     * @returns {Promise<boolean>} - true if template created successfully
      */
     async createScriptTemplate() {
         try {
             const templateContent = `#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Python Resolver per OMG TV
-# Questo script riceve un URL e restituisce l'URL risolto
+# Python resolver for OMG TV
+# This script receives a URL and returns the resolved URL
 
 import sys
 import json
@@ -285,39 +285,39 @@ import requests
 import time
 from urllib.parse import urlparse, parse_qs
 
-# Configurazione globale
+# Global configuration
 API_KEY = "la_tua_api_key"
 API_SECRET = "il_tuo_secret"
 RESOLVER_VERSION = "1.0.0"
 
 def get_token():
     """
-    Esempio di funzione per ottenere un token di autenticazione
+    Example function to obtain an authentication token
     """
-    # Implementazione personalizzata per ottenere il token
-    # Questa è solo una simulazione
+    # Custom implementation for obtaining the token
+    # This is just a simulation
     token = f"token_{int(time.time())}"
     return token
 
 def resolve_link(url, headers=None, channel_name=None):
     """
-    Funzione principale che risolve un link
-    Parametri:
-    - url: URL da risolvere
-    - headers: dizionario con gli header HTTP da utilizzare 
-    - channel_name: nome del canale per il logging
+    Main function that resolves a link
+    Parameters:
+    - url: URL to resolve
+    - headers: dictionary with HTTP headers to use 
+    - channel_name: channel name for logging
     
-    Restituisce:
-    - Un dizionario con l'URL risolto e gli header da utilizzare
+    Returns:
+    - A dictionary with the resolved URL and headers to use
     """
-    print(f"Risoluzione URL: {url}")
-    print(f"Canale: {channel_name}")
+    print(f"Resolving URL: {url}")
+    print(f"Channel: {channel_name}")
     
-    # Parsing dell'URL per estrarre parametri
+    # Parse URL to extract parameters
     parsed_url = urlparse(url)
     params = parse_qs(parsed_url.query)
     
-    # Esempio: aggiungi un token all'URL
+    # Example: add a token to the URL
     token = get_token()
     
     # ESEMPIO 1: Aggiungi token a URL esistente
@@ -336,10 +336,10 @@ def resolve_link(url, headers=None, channel_name=None):
                 data = api_response.json()
                 resolved_url = data.get("stream_url", url)
             else:
-                print(f"Errore API: {api_response.status_code}")
+                print(f"API error: {api_response.status_code}")
                 resolved_url = url
         except Exception as e:
-            print(f"Errore chiamata API: {str(e)}")
+            print(f"API call error: {str(e)}")
             resolved_url = url
     
     # Caso predefinito: restituisci l'URL originale
@@ -368,7 +368,7 @@ def main():
         print("Utilizzo: python3 resolver.py [--check|--resolve input_file output_file]")
         sys.exit(1)
     
-    # Comando check: verifica che lo script sia valido
+    # Check command: verify that the script is valid
     if sys.argv[1] == "--check":
         print("resolver_ready: True")
         sys.exit(0)
@@ -397,7 +397,7 @@ def main():
             print(f"URL risolto salvato in: {output_file}")
             sys.exit(0)
         except Exception as e:
-            print(f"Errore: {str(e)}")
+            print(f"Error: {str(e)}")
             sys.exit(1)
     
     print("Comando non valido")
@@ -408,11 +408,11 @@ if __name__ == "__main__":
 `;
             
             fs.writeFileSync(this.scriptPath, templateContent);
-            console.log('✓ Template dello script resolver creato con successo');
+            console.log('✓ Resolver script template created successfully');
             return true;
         } catch (error) {
-            console.error('❌ Errore nella creazione del template:', error.message);
-            this.lastError = `Errore creazione template: ${error.message}`;
+            console.error('❌ Error creating template:', error.message);
+            this.lastError = `Template creation error: ${error.message}`;
             return false;
         }
     }
@@ -436,7 +436,7 @@ if __name__ == "__main__":
     }
 
     /**
-     * Ottiene la versione del resolver dallo script Python
+     * Get resolver version from the Python script
      */
     getResolverVersion() {
         try {
@@ -449,8 +449,8 @@ if __name__ == "__main__":
             }
             return 'N/A';
         } catch (error) {
-            console.error('Errore nella lettura della versione:', error.message);
-            return 'Errore';
+            console.error('Error reading version:', error.message);
+            return 'Error';
         }
     }
 

@@ -235,7 +235,7 @@ const getViewScripts = (protocol, host) => {
                                 alert('Configuration restored but rebuild error: ' + rebuildResult.message);
                             }
                         } catch (rebuildError) {
-                            console.error('Errore rebuild:', rebuildError);
+                            console.error('Rebuild error:', rebuildError);
                             alert('Configuration restored but cache rebuild failed');
                         }
                     }
@@ -249,7 +249,7 @@ const getViewScripts = (protocol, host) => {
         
                 } catch (error) {
                     hideLoader();
-                    console.error('Errore:', error);
+                    console.error('Error:', error);
                     alert('Error loading configuration file: ' + error.message);
                 }
             };

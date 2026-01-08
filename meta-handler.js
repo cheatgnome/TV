@@ -8,7 +8,7 @@ function normalizeId(id) {
 function enrichWithDetailedEPG(meta, channelId, userConfig) {
 
     if (!userConfig.epg_enabled) {
-        console.log('❌ EPG non abilitato');
+        console.log('❌ EPG not enabled');
         return meta;
     }
 
@@ -22,7 +22,7 @@ function enrichWithDetailedEPG(meta, channelId, userConfig) {
     if (currentProgram) {
         let description = [];
 
-        description.push('📺 IN ONDA ORA:', currentProgram.title);
+        description.push('📺 ON NOW:', currentProgram.title);
 
         if (currentProgram.description) {
             description.push('', currentProgram.description);
@@ -35,7 +35,7 @@ function enrichWithDetailedEPG(meta, channelId, userConfig) {
         }
 
         if (upcomingPrograms?.length > 0) {
-            description.push('', '📅 PROSSIMI PROGRAMMI:');
+            description.push('', '📅 UP NEXT:');
             upcomingPrograms.forEach(program => {
                 description.push(
                     '',
@@ -62,12 +62,12 @@ async function metaHandler({ type, id, config: userConfig }) {
     try {
 
         if (!userConfig.m3u) {
-            console.log('❌ URL M3U mancante');
+            console.log('❌ Missing M3U URL');
             return { meta: null };
         }
 
         if (global.CacheManager.cache.m3uUrl !== userConfig.m3u) {
-            console.log('Cache M3U non aggiornata, ricostruzione...');
+            console.log('M3U cache not updated, rebuilding...');
             await global.CacheManager.rebuildCache(userConfig.m3u, userConfig);
         }
 
@@ -96,8 +96,8 @@ async function metaHandler({ type, id, config: userConfig }) {
             releaseInfo: 'LIVE',
             genre: channel.genre,
             posterShape: 'square',
-            language: 'ita',
-            country: 'ITA',
+            language: 'eng',
+            country: 'USA',
             isFree: true,
             behaviorHints: {
                 isLive: true,
@@ -118,24 +118,24 @@ async function metaHandler({ type, id, config: userConfig }) {
         let baseDescription = [];
 
         if (channel.streamInfo?.tvg?.chno) {
-            baseDescription.push(`📺 Canale ${channel.streamInfo.tvg.chno}`);
+            baseDescription.push(`📺 Channel ${channel.streamInfo.tvg.chno}`);
         }
 
         if (channel.description) {
             baseDescription.push('', channel.description);
         } else {
-            baseDescription.push('', `ID Canale: ${channel.streamInfo?.tvg?.id}`);
+            baseDescription.push('', `Channel ID: ${channel.streamInfo?.tvg?.id}`);
         }
 
         meta.description = baseDescription.join('\n');
 
         const enrichedMeta = enrichWithDetailedEPG(meta, channel.streamInfo?.tvg?.id, userConfig);
 
-        console.log('✓ Meta handler completato');
+        console.log('✓ Meta handler completed');
         return { meta: enrichedMeta };
     } catch (error) {
-        console.error('[MetaHandler] Errore:', error.message);
-        console.log('=== Fine Meta Handler con Errore ===\n');
+        console.error('[MetaHandler] Error:', error.message);
+        console.log('=== Meta handler finished with error ===\n');
         return { meta: null };
     }
 }

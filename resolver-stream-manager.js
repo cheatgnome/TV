@@ -1,10 +1,6 @@
 const config = require('./config');
 const PythonResolver = require('./python-resolver');
 
-function getLanguageFromConfig(userConfig) {
-    return userConfig.language || config.defaultLanguage || 'Italiano';
-}
-
 class ResolverStreamManager {
     constructor() {
         this.resolverCache = new Map();
@@ -44,14 +40,14 @@ class ResolverStreamManager {
             // Scarica lo script
             const downloaded = await PythonResolver.downloadScript(resolverScriptUrl);
             if (!downloaded) {
-                console.error('❌ Errore nel download dello script resolver');
+                console.error('❌ Error downloading resolver script');
                 return false;
             }
             
             // Verifica la salute dello script
             const isHealthy = await PythonResolver.checkScriptHealth();
             if (!isHealthy) {
-                console.error('❌ Script resolver non valido');
+                console.error('❌ Invalid resolver script');
                 return false;
             }
             
@@ -62,7 +58,7 @@ class ResolverStreamManager {
             
             return true;
         } catch (error) {
-            console.error('❌ Errore nell\'inizializzazione del resolver:', error.message);
+            console.error('❌ Error initializing resolver:', error.message);
             return false;
         }
     }
@@ -105,7 +101,7 @@ class ResolverStreamManager {
      */
     async getResolvedStreams(input, userConfig = {}) {
         if (!this.isResolverConfigured(userConfig)) {
-            console.log('Resolver non configurato per:', input.name);
+            console.log('Resolver not configured for:', input.name);
             return [];
         }
 
@@ -170,21 +166,20 @@ class ResolverStreamManager {
 
                     // Se la risoluzione non produce un risultato, restituisci null
                     if (!result || !result.resolved_url) {
-                        console.log(`❌ Nessun risultato dal resolver per: ${streamDetails.name}`);
+                        console.log(`❌ No result from resolver for: ${streamDetails.name}`);
                         return null;
                     }
                     
-                    const language = getLanguageFromConfig(userConfig);
                     // Se l'URL è lo stesso (non è stato processato dal resolver perché non è Vavoo),
                     // restituisci comunque uno stream con l'URL originale
                     if (result.resolved_url === streamDetails.url) {
-                        console.log(`ℹ️ URL non modificato dal resolver per: ${streamDetails.name}, lo manteniamo`);
+                        console.log(`ℹ️ URL unchanged by resolver for: ${streamDetails.name}, keeping it`);
+                        const displayName = input.originalName || input.name || streamDetails.name;
                         return {
-                            name: `${input.originalName}`,
-                            title: `📺 ${streamDetails.name} [${language.substring(0, 3).toUpperCase()}]`,
+                            name: displayName,
+                            title: `📺 ${streamDetails.name}`,
                             url: streamDetails.url,
                             headers: streamDetails.headers,
-                            language: language,
                             behaviorHints: {
                                 notWebReady: false,
                                 bingeGroup: "tv"
@@ -193,19 +188,19 @@ class ResolverStreamManager {
                     }
                     
 
+                    const resolvedName = input.originalName || input.name || streamDetails.name;
                     return {
-                        name: `${input.originalName}`,
-                        title: `🧩 ${streamDetails.name} [${language.substring(0, 3).toUpperCase()}]\n[Resolved]`,
+                        name: resolvedName,
+                        title: `🧩 ${streamDetails.name}\n[Resolved]`,
                         url: result.resolved_url,
                         headers: result.headers || streamDetails.headers,
-                        language: language,
                         behaviorHints: {
                             notWebReady: false,
                             bingeGroup: "tv"
                         }
                     };
                 } catch (error) {
-                    console.error('Errore elaborazione stream:', error.message);
+                    console.error('Stream processing error:', error.message);
                     return null; // Restituisci null per escludere questo stream
                 }
             });
@@ -221,7 +216,7 @@ class ResolverStreamManager {
             return streams;
 
         } catch (error) {
-            console.error('Errore generale resolver:', error.message);
+            console.error('Resolver general error:', error.message);
             if (error.response) {
                 console.error('Status:', error.response.status);
                 console.error('Headers:', error.response.headers);

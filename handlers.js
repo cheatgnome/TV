@@ -3,10 +3,6 @@ const EPGManager = require('./epg-manager');
 const StreamProxyManager = require('./stream-proxy-manager')(config);
 const ResolverStreamManager = require('./resolver-stream-manager')(config);
 
-function getLanguageFromConfig(userConfig) {
-    return userConfig.language || config.defaultLanguage || 'Italiana';
-}
-
 function normalizeId(id) {
     return id?.toLowerCase().replace(/[^\w.]/g, '').trim() || '';
 }
@@ -50,7 +46,7 @@ function cleanNameForImage(name) {
 async function catalogHandler({ type, id, extra, config: userConfig }) {
     try {
         if (!userConfig.m3u) {
-            console.log('[Handlers] URL M3U mancante nella configurazione');
+            console.log('[Handlers] Missing M3U URL in configuration');
             return { metas: [], genres: [] };
         }
 
@@ -103,17 +99,14 @@ async function catalogHandler({ type, id, extra, config: userConfig }) {
             const displayName = cleanNameForImage(channel.name);
             const encodedName = encodeURIComponent(displayName).replace(/%20/g, '+');
             const fallbackLogo = `https://dummyimage.com/500x500/590b8a/ffffff.jpg&text=${encodedName}`;
-            const language = getLanguageFromConfig(userConfig);
-            const languageAbbr = language.substring(0, 3).toUpperCase();
-
             const meta = {
                 id: channel.id,
                 type: 'tv',
-                name: `${channel.name} [${languageAbbr}]`,
+                name: channel.name,
                 poster: channel.poster || fallbackLogo,
                 background: channel.background || fallbackLogo,
                 logo: channel.logo || fallbackLogo,
-                description: channel.description || `Canale: ${channel.name} - ID: ${channel.streamInfo?.tvg?.id}`,
+                description: channel.description || `Channel: ${channel.name} - ID: ${channel.streamInfo?.tvg?.id}`,
                 genre: channel.genre,
                 posterShape: channel.posterShape || 'square',
                 releaseInfo: 'LIVE',
@@ -125,7 +118,7 @@ async function catalogHandler({ type, id, extra, config: userConfig }) {
             };
 
             if (channel.streamInfo?.tvg?.chno) {
-                meta.name = `${channel.streamInfo.tvg.chno}. ${channel.name} [${languageAbbr}]`;
+                meta.name = `${channel.streamInfo.tvg.chno}. ${channel.name}`;
             }
 
             if ((!meta.poster || !meta.background || !meta.logo) && channel.streamInfo?.tvg?.id) {
@@ -146,14 +139,14 @@ async function catalogHandler({ type, id, extra, config: userConfig }) {
         };
 
     } catch (error) {
-        console.error('[Handlers] Errore nella gestione del catalogo:', error);
+        console.error('[Handlers] Error handling catalog:', error);
         return { metas: [], genres: [] };
     }
 }
 
 function enrichWithEPG(meta, channelId, userConfig) {
     if (!userConfig.epg_enabled || !channelId) {
-        meta.description = `Canale live: ${meta.name}`;
+        meta.description = `Live channel: ${meta.name}`;
         meta.releaseInfo = 'LIVE';
         return meta;
     }
@@ -162,26 +155,26 @@ function enrichWithEPG(meta, channelId, userConfig) {
     const upcomingPrograms = EPGManager.getUpcomingPrograms(normalizeId(channelId));
 
     if (currentProgram) {
-        meta.description = `IN ONDA ORA:\n${currentProgram.title}`;
+        meta.description = `ON NOW:\n${currentProgram.title}`;
 
         if (currentProgram.description) {
             meta.description += `\n${currentProgram.description}`;
         }
 
-        meta.description += `\nOrario: ${currentProgram.start} - ${currentProgram.stop}`;
+        meta.description += `\nTime: ${currentProgram.start} - ${currentProgram.stop}`;
 
         if (currentProgram.category) {
-            meta.description += `\nCategoria: ${currentProgram.category}`;
+            meta.description += `\nCategory: ${currentProgram.category}`;
         }
 
         if (upcomingPrograms && upcomingPrograms.length > 0) {
-            meta.description += '\n\nPROSSIMI PROGRAMMI:';
+            meta.description += '\n\nUP NEXT:';
             upcomingPrograms.forEach(program => {
                 meta.description += `\n${program.start} - ${program.title}`;
             });
         }
 
-        meta.releaseInfo = `In onda: ${currentProgram.title}`;
+        meta.releaseInfo = `On now: ${currentProgram.title}`;
     }
 
     return meta;
@@ -190,7 +183,7 @@ function enrichWithEPG(meta, channelId, userConfig) {
 async function streamHandler({ id, config: userConfig }) {
     try {
         if (!userConfig.m3u) {
-            console.log('M3U URL mancante');
+            console.log('Missing M3U URL');
             return { streams: [] };
         }
 
@@ -201,7 +194,7 @@ async function streamHandler({ id, config: userConfig }) {
 
         // Gestione canale speciale per la rigenerazione playlist
         if (channelId === 'rigeneraplaylistpython') {
-            console.log('\n=== Richiesta rigenerazione playlist Python ===');
+            console.log('\n=== Python playlist regeneration request ===');
 
 
             // Esegui lo script Python
@@ -209,16 +202,16 @@ async function streamHandler({ id, config: userConfig }) {
             const result = await PythonRunner.executeScript();
 
             if (result) {
-                console.log('✓ Script Python eseguito con successo');
+                console.log('✓ Python script executed successfully');
 
                 // Ricostruisci la cache
-                console.log('Ricostruzione cache con il nuovo file generato...');
+                console.log('Rebuilding cache with the newly generated file...');
                 await global.CacheManager.rebuildCache(userConfig.m3u, userConfig);
 
                 return {
                     streams: [{
-                        name: 'Completato',
-                        title: '✅ Playlist rigenerata con successo!\n Riavvia stremio o torna indietro.',
+                        name: 'Completed',
+                        title: '✅ Playlist regenerated successfully!\nRestart Stremio or go back.',
                         url: 'https://static.vecteezy.com/system/resources/previews/001/803/236/mp4/no-signal-bad-tv-free-video.mp4',
                         behaviorHints: {
                             notWebReady: false,
@@ -227,11 +220,11 @@ async function streamHandler({ id, config: userConfig }) {
                     }]
                 };
             } else {
-                console.log('❌ Errore nell\'esecuzione dello script Python');
+                console.log('❌ Error executing Python script');
                 return {
                     streams: [{
-                        name: 'Errore',
-                        title: `❌ Errore: ${PythonRunner.lastError || 'Errore sconosciuto'}`,
+                        name: 'Error',
+                        title: `❌ Error: ${PythonRunner.lastError || 'Unknown error'}`,
                         url: 'https://static.vecteezy.com/system/resources/previews/001/803/236/mp4/no-signal-bad-tv-free-video.mp4',
                         behaviorHints: {
                             notWebReady: false,
@@ -246,7 +239,7 @@ async function streamHandler({ id, config: userConfig }) {
         const channel = global.CacheManager.getChannel(channelId);
 
         if (!channel) {
-            console.log('Canale non trovato:', channelId);
+            console.log('Channel not found:', channelId);
             return { streams: [] };
         }
 
@@ -306,10 +299,10 @@ async function streamHandler({ id, config: userConfig }) {
                             }
 
                             if (streams.length === 0) {
-                                console.log('⚠️ Nessun proxy valido per i flussi risolti e force_proxy è attivo, nessun flusso disponibile');
+                                console.log('⚠️ No valid proxy for resolved streams and force_proxy is enabled, no streams available');
                             }
                         } else {
-                            console.log('⚠️ Proxy forzato ma non configurato correttamente, uso i flussi risolti originali');
+                            console.log('⚠️ Force proxy enabled but not configured correctly, using original resolved streams');
                             streams = resolvedStreams;
                         }
                     } else {
@@ -335,12 +328,12 @@ async function streamHandler({ id, config: userConfig }) {
                         }
                     }
                 } else {
-                    console.log('⚠️ Nessun flusso risolto disponibile, utilizzo flussi standard');
+                    console.log('⚠️ No resolved streams available, using standard streams');
                     // Riprendi con la logica standard solo se il resolver fallisce
                     streams = await processOriginalStreams(originalStreamDetails, channel, userConfig);
                 }
             } catch (resolverError) {
-                console.error('❌ Errore durante la risoluzione dei flussi:', resolverError);
+                console.error('❌ Error resolving streams:', resolverError);
                 // In caso di errore del resolver, riprendi con la logica standard
                 streams = await processOriginalStreams(originalStreamDetails, channel, userConfig);
             }
@@ -361,7 +354,7 @@ async function streamHandler({ id, config: userConfig }) {
             poster: channel.poster || fallbackLogo,
             background: channel.background || fallbackLogo,
             logo: channel.logo || fallbackLogo,
-            description: channel.description || `ID Canale: ${channel.streamInfo?.tvg?.id}`,
+            description: channel.description || `Channel ID: ${channel.streamInfo?.tvg?.id}`,
             genre: channel.genre,
             posterShape: channel.posterShape || 'square',
             releaseInfo: 'LIVE',
@@ -387,7 +380,7 @@ async function streamHandler({ id, config: userConfig }) {
 
         return { streams };
     } catch (error) {
-        console.error('Errore stream handler:', error);
+        console.error('Stream handler error:', error);
         return { streams: [] };
     }
 }
@@ -406,13 +399,11 @@ async function processOriginalStreams(originalStreamDetails, channel, userConfig
     } else {
         // Aggiungi prima gli stream originali
         for (const streamDetails of originalStreamDetails) {
-            const language = getLanguageFromConfig(userConfig);
             const streamMeta = {
                 name: streamDetails.name,
-                title: `📺 ${streamDetails.originalName || streamDetails.name} [${language.substring(0, 3).toUpperCase()}]`,
+                title: `📺 ${streamDetails.originalName || streamDetails.name}`,
                 url: streamDetails.url,
                 headers: streamDetails.headers,
-                language: language,
                 behaviorHints: {
                     notWebReady: false,
                     bingeGroup: "tv"
