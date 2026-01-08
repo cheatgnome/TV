@@ -111,10 +111,10 @@ class EPGManager {
     formatDateIT(date) {
         if (!date) return '';
         const localDate = new Date(date.getTime() + (this.offsetMinutes * 60000));
-        return localDate.toLocaleString('it-IT', {
+        return localDate.toLocaleString('en-US', {
             hour: '2-digit',
             minute: '2-digit',
-            hour12: false
+            hour12: true
         }).replace(/\./g, ':');
     }
 
