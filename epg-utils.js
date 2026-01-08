@@ -17,7 +17,9 @@ function formatProgramLine(program) {
     const timeRange = program.stop ? `${program.start} - ${program.stop}` : program.start;
     const title = sanitizeEpgText(program.title);
 
-    return [timeRange, title].filter(Boolean);
+    const formattedTitle = title ? `• ${title}` : '';
+
+    return [timeRange, formattedTitle].filter(Boolean);
 }
 
 function buildEpgDescription({ currentProgram, upcomingPrograms = [], upcomingLimit = 3 }) {
