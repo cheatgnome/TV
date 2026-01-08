@@ -1,5 +1,7 @@
 const config = require('./config');
 const EPGManager = require('./epg-manager');
+const { buildEpgDescription } = require('./epg-utils');
+const { wrapLogoUrl } = require('./logo-utils');
 const StreamProxyManager = require('./stream-proxy-manager')(config);
 const ResolverStreamManager = require('./resolver-stream-manager')(config);
 
@@ -103,9 +105,9 @@ async function catalogHandler({ type, id, extra, config: userConfig }) {
                 id: channel.id,
                 type: 'tv',
                 name: channel.name,
-                poster: channel.poster || fallbackLogo,
-                background: channel.background || fallbackLogo,
-                logo: channel.logo || fallbackLogo,
+                poster: wrapLogoUrl(channel.poster || fallbackLogo),
+                background: wrapLogoUrl(channel.background || fallbackLogo),
+                logo: wrapLogoUrl(channel.logo || fallbackLogo),
                 description: channel.description || `Channel: ${channel.name} - ID: ${channel.streamInfo?.tvg?.id}`,
                 genre: channel.genre,
                 posterShape: channel.posterShape || 'square',
@@ -122,7 +124,7 @@ async function catalogHandler({ type, id, extra, config: userConfig }) {
             }
 
             if ((!meta.poster || !meta.background || !meta.logo) && channel.streamInfo?.tvg?.id) {
-                const epgIcon = EPGManager.getChannelIcon(channel.streamInfo.tvg.id);
+                const epgIcon = wrapLogoUrl(EPGManager.getChannelIcon(channel.streamInfo.tvg.id));
                 if (epgIcon) {
                     meta.poster = meta.poster || epgIcon;
                     meta.background = meta.background || epgIcon;
@@ -154,27 +156,15 @@ function enrichWithEPG(meta, channelId, userConfig) {
     const currentProgram = EPGManager.getCurrentProgram(normalizeId(channelId));
     const upcomingPrograms = EPGManager.getUpcomingPrograms(normalizeId(channelId));
 
-    if (currentProgram) {
-        meta.description = `ON NOW:\n${currentProgram.title}`;
+    const epgDescription = buildEpgDescription({
+        currentProgram,
+        upcomingPrograms,
+        upcomingLimit: 3
+    });
 
-        if (currentProgram.description) {
-            meta.description += `\n${currentProgram.description}`;
-        }
-
-        meta.description += `\nTime: ${currentProgram.start} - ${currentProgram.stop}`;
-
-        if (currentProgram.category) {
-            meta.description += `\nCategory: ${currentProgram.category}`;
-        }
-
-        if (upcomingPrograms && upcomingPrograms.length > 0) {
-            meta.description += '\n\nUP NEXT:';
-            upcomingPrograms.forEach(program => {
-                meta.description += `\n${program.start} - ${program.title}`;
-            });
-        }
-
-        meta.releaseInfo = `On now: ${currentProgram.title}`;
+    if (epgDescription) {
+        meta.description = epgDescription;
+        meta.releaseInfo = currentProgram?.title || 'LIVE';
     }
 
     return meta;
@@ -351,9 +341,9 @@ async function streamHandler({ id, config: userConfig }) {
             id: channel.id,
             type: 'tv',
             name: channel.name,
-            poster: channel.poster || fallbackLogo,
-            background: channel.background || fallbackLogo,
-            logo: channel.logo || fallbackLogo,
+            poster: wrapLogoUrl(channel.poster || fallbackLogo),
+            background: wrapLogoUrl(channel.background || fallbackLogo),
+            logo: wrapLogoUrl(channel.logo || fallbackLogo),
             description: channel.description || `Channel ID: ${channel.streamInfo?.tvg?.id}`,
             genre: channel.genre,
             posterShape: channel.posterShape || 'square',
@@ -366,7 +356,7 @@ async function streamHandler({ id, config: userConfig }) {
         };
 
         if ((!meta.poster || !meta.background || !meta.logo) && channel.streamInfo?.tvg?.id) {
-            const epgIcon = EPGManager.getChannelIcon(channel.streamInfo.tvg.id);
+            const epgIcon = wrapLogoUrl(EPGManager.getChannelIcon(channel.streamInfo.tvg.id));
             if (epgIcon) {
                 meta.poster = meta.poster || epgIcon;
                 meta.background = meta.background || epgIcon;

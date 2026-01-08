@@ -1,4 +1,4 @@
-# 📺 OMG Premium TV per Stremio
+# 📺 TV per Stremio
 
 ***[🇮🇹 Leggi in italiano](README.md)*** - ***[🇬🇧 Read in English](README-EN.md)*** - ***[🇫🇷 Lire en Français](README-FR.md)*** - ***[🇪🇸 Leer en español](README-ES.md)***
 
@@ -6,7 +6,7 @@
 
 ## 👋 Introduzione
 
-Benvenuto in OMG Premium TV, l'addon per Stremio che ti permette di guardare i tuoi canali TV e IPTV preferiti da playlist M3U/M3U8, arricchiti con informazioni sui programmi (EPG). Questa guida ti aiuterà a sfruttare al meglio tutte le funzionalità disponibili.
+Benvenuto in TV, l'addon per Stremio che ti permette di guardare i tuoi canali TV e IPTV preferiti da playlist M3U/M3U8, arricchiti con informazioni sui programmi (EPG). Questa guida ti aiuterà a sfruttare al meglio tutte le funzionalità disponibili.
 
 ### ⚠️ Leggi con attenzione!
 
@@ -22,7 +22,7 @@ Un caffè ☕ o una birra sono 🍺 un gesto di riconoscenza molto apprezzato e 
 
 
 
-## 🔄 Changelog di OMG Premium TV
+## 🔄 Changelog di TV
 
 ### 🚀 Versione 6.0.0 (Attuale)
 
@@ -86,7 +86,7 @@ docker compose -f docker-compose.unraid.yml up -d
 - Se tutte queste cose ti sembrano incomprensibili FERMATI; cerca una guida on line su docker, guarda la sezione supporto in basso a questa pagina o chiedi aiuto ad un AI 😊
 
 ### 📲 Installazione dell'addon
-1. Apri la pagina web di configurazione OMG Premium TV
+1. Apri la pagina web di configurazione TV
 2. Configura l'addon secondo le tue esigenze
 3. Clicca sul pulsante **INSTALLA SU STREMIO** 🔘
 4. Stremio si aprirà automaticamente e ti chiederà di confermare l'installazione
@@ -112,7 +112,7 @@ docker compose -f docker-compose.unraid.yml up -d
 ### 📱 Navigazione nel catalogo
 1. Apri Stremio
 2. Vai alla sezione **Scopri** 🔍
-3. Seleziona **Canali TV** e poi **OMG Premium TV** dalla lista degli addon
+3. Seleziona **Canali TV** e poi **TV** dalla lista degli addon
 4. Vedrai la lista completa dei canali disponibili
 
 ### 🎯 Filtraggio dei canali
@@ -198,7 +198,7 @@ Clicca su un canale per vedere:
 
 ### 🔄 Modifica delle impostazioni
 - In Stremio, vai su **Impostazioni** ⚙️ > **Addon**
-- Clicca su **Configura** 🔄 accanto a OMG Premium TV
+- Clicca su **Configura** 🔄 accanto a TV
 - Accedi alla pagina di configurazione, fai le modifiche che ti interessano
 - Premi su **Genera Configurazione**
 - Onde evitare un doppione rimuovi l'addon su Stremio
@@ -248,6 +248,6 @@ Progetto rilasciato sotto licenza MIT.
 
 ---
 
-📚 **Nota importante**: OMG Premium TV è progettato per accedere a contenuti legali. Nell'addon non sono inclusi canali o flussi. Assicurati di rispettare la normativa del tuo paese riguardo lo streaming di contenuti.
+📚 **Nota importante**: TV è progettato per accedere a contenuti legali. Nell'addon non sono inclusi canali o flussi. Assicurati di rispettare la normativa del tuo paese riguardo lo streaming di contenuti.
 
-🌟 Grazie per aver scelto OMG Premium TV! Goditi la visione! 🌟
+🌟 Grazie per aver scelto TV! Goditi la visione! 🌟

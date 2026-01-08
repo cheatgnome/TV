@@ -1,10 +1,10 @@
-# 📺 OMG Premium TV para Stremio
+# 📺 TV para Stremio
 
 ***[🇮🇹 Leggi in italiano](README.md)*** - ***[🇬🇧 Read in English](README-EN.md)*** - ***[🇫🇷 Lire en Français](README-FR.md)*** - ***[🇪🇸 Leer en español](README-ES.md)***
 
 ## 👋 Introducción
 
-Bienvenido a OMG Premium TV, el addon para Stremio que te permite ver tus canales de TV e IPTV favoritos desde listas de reproducción M3U/M3U8, enriquecidas con información sobre programas (EPG). Esta guía te ayudará a aprovechar al máximo todas las funcionalidades disponibles.
+Bienvenido a TV, el addon para Stremio que te permite ver tus canales de TV e IPTV favoritos desde listas de reproducción M3U/M3U8, enriquecidas con información sobre programas (EPG). Esta guía te ayudará a aprovechar al máximo todas las funcionalidades disponibles.
 
 <img width="1440" alt="Screenshot 2025-02-28 alle 21 36 52" src="https://github.com/user-attachments/assets/c85b2a33-0174-4cb3-b7a9-2cc2140c8c0f" />
 
@@ -22,7 +22,7 @@ Trabajar en este addon y mantenerlo actualizado ha costado muchísimas horas y m
 
 
 
-## 🔄 Registro de cambios de OMG Premium TV
+## 🔄 Registro de cambios de TV
 
 ### 🚀 Versión 6.0.0 (Actual)
 
@@ -67,7 +67,7 @@ Para detalles completos sobre el funcionamiento de las nuevas funcionalidades, c
 - Si todas estas cosas te parecen incomprensibles DETENTE; busca una guía en línea sobre docker, mira la sección de soporte al final de esta página o pide ayuda a una IA 😊
 
 ### 📲 Instalación del addon
-1. Abre la página web de configuración OMG Premium TV
+1. Abre la página web de configuración TV
 2. Configura el addon según tus necesidades
 3. Haz clic en el botón **INSTALAR EN STREMIO** 🔘
 4. Stremio se abrirá automáticamente y te pedirá que confirmes la instalación
@@ -93,7 +93,7 @@ Para detalles completos sobre el funcionamiento de las nuevas funcionalidades, c
 ### 📱 Navegación en el catálogo
 1. Abre Stremio
 2. Ve a la sección **Descubrir** 🔍
-3. Selecciona **Canales TV** y luego **OMG Premium TV** de la lista de addons
+3. Selecciona **Canales TV** y luego **TV** de la lista de addons
 4. Verás la lista completa de los canales disponibles
 
 ### 🎯 Filtrado de canales
@@ -179,7 +179,7 @@ Haz clic en un canal para ver:
 
 ### 🔄 Modificación de la configuración
 - En Stremio, ve a **Configuración** ⚙️ > **Addon**
-- Haz clic en **Configurar** 🔄 junto a OMG Premium TV
+- Haz clic en **Configurar** 🔄 junto a TV
 - Accede a la página de configuración, haz los cambios que te interesen
 - Presiona **Generar Configuración**
 - Para evitar un duplicado, elimina el addon en Stremio
@@ -229,6 +229,6 @@ Proyecto publicado bajo licencia MIT.
 
 ---
 
-📚 **Nota importante**: OMG Premium TV está diseñado para acceder a contenidos legales. En el addon no se incluyen canales ni flujos. Asegúrate de respetar la normativa de tu país respecto al streaming de contenidos.
+📚 **Nota importante**: TV está diseñado para acceder a contenidos legales. En el addon no se incluyen canales ni flujos. Asegúrate de respetar la normativa de tu país respecto al streaming de contenidos.
 
-🌟 ¡Gracias por elegir OMG Premium TV! ¡Disfruta de la visión! 🌟
+🌟 ¡Gracias por elegir TV! ¡Disfruta de la visión! 🌟
