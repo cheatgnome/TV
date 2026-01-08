@@ -18,7 +18,7 @@ const baseConfig = {
     manifest: {
         id: 'org.mccoy88f.omgtv',
         version: '1.0.0',
-        name: 'OMG TV',
+        name: 'TV',
         description: 'Temporary mode, installation may show errors, temporary mode enabled',
         logo: 'https://github.com/mccoy88f/OMG-TV-Stremio-Addon/blob/main/tv.png?raw=true',
         resources: ['stream', 'catalog', 'meta'],
@@ -28,7 +28,7 @@ const baseConfig = {
             {
                 type: 'tv',
                 id: 'omg_tv',
-                name: 'OMG TV',
+                name: 'TV',
                 extra: [
                     {
                         name: 'genre',
@@ -78,7 +78,7 @@ function loadCustomConfig() {
                     catalogs: [{
                         ...baseConfig.manifest.catalogs[0],
                         id: addonConfigExists ? 'omg_plus_tv' : baseConfig.manifest.catalogs[0].id,
-                        name: addonConfigExists ? 'OMG+ TV' : baseConfig.manifest.catalogs[0].name,
+                        name: 'TV',
                         extra: [
                             {
                                 name: 'genre',

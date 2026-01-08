@@ -2,6 +2,7 @@ const axios = require('axios');
 const path = require('path');
 const fs = require('fs');
 const config = require('./config');
+const { wrapLogoUrl } = require('./logo-utils');
 
 async function readExternalFile(url) {
   try {
@@ -209,15 +210,17 @@ class PlaylistTransformer {
       const suffix = config?.id_suffix || ''; // Ottieni il suffisso dalla configurazione
       const finalChannelId = channelId + (suffix ? `.${suffix}` : ''); // Add the suffix to the channel ID
 
+      const logoUrl = wrapLogoUrl(channel.tvg?.logo);
+
       return {
           id: `tv|${finalChannelId}`, // Usa l'ID con il suffisso
           type: 'tv',
           name: cleanName,
           genre: channel.group,
           posterShape: 'square',
-          poster: channel.tvg?.logo,
-          background: channel.tvg?.logo,
-          logo: channel.tvg?.logo,
+          poster: logoUrl,
+          background: logoUrl,
+          logo: logoUrl,
           description: `Channel: ${cleanName} - ID: ${finalChannelId}`,
           runtime: 'LIVE',
           behaviorHints: {

@@ -1,5 +1,6 @@
 const axios = require('axios');
 const fs = require('fs');
+const { wrapLogoUrl } = require('./logo-utils');
 
 async function readExternalFile(url) {
     try {
@@ -49,15 +50,17 @@ class PlaylistTransformer {
         const group = channel.group || "Other Channels";
         this.stremioData.genres.add(group);
 
+        const logoUrl = wrapLogoUrl(channel.tvg?.logo);
+
         return {
             id,
             type: 'tv',
             name: name,
             genre: [group],
             posterShape: 'square',
-            poster: channel.tvg?.logo,
-            background: channel.tvg?.logo,
-            logo: channel.tvg?.logo,
+            poster: logoUrl,
+            background: logoUrl,
+            logo: logoUrl,
             description: `Channel: ${name}`,
             runtime: 'LIVE',
             behaviorHints: {

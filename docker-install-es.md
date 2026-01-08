@@ -1,9 +1,9 @@
-# 🐳 Instalación de OMG Premium TV mediante Docker
+# 🐳 Instalación de TV mediante Docker
 ***[🇮🇹 Leggi in italiano](README.md)*** - ***[🇬🇧 Read in English](docker-install-en.md)*** - ***[🇫🇷 Lire en Français](docker-install-fr.md)*** - ***[🇪🇸 Leer en español](docker-install-es.md)***
 
 ## 🖥️ ¿Por qué usar Docker?
 
-Instalar OMG Premium TV mediante Docker ofrece varias ventajas:
+Instalar TV mediante Docker ofrece varias ventajas:
 - 🔒 Aislamiento de la aplicación
 - 🔄 Fácil actualización
 - 📦 Sin conflictos con otras aplicaciones
@@ -36,7 +36,7 @@ Instalar OMG Premium TV mediante Docker ofrece varias ventajas:
    - Portainer creará e iniciará automáticamente el contenedor
 
 5. **Accede al Addon** 🌐
-   - Una vez iniciado, accede a la interfaz web de OMG Premium TV en la dirección:
+   - Una vez iniciado, accede a la interfaz web de TV en la dirección:
    - `http://tu-servidor:7860`
 
 ## 🤗 Opción 2: Instalación en Hugging Face Spaces
@@ -68,7 +68,7 @@ Instalar OMG Premium TV mediante Docker ofrece varias ventajas:
    - Hugging Face iniciará automáticamente el proceso de build y despliegue
 
 5. **Accede al Addon** 🌐
-   - Una vez completado el despliegue, accede a la interfaz web de OMG Premium TV en la URL:
+   - Una vez completado el despliegue, accede a la interfaz web de TV en la URL:
    - `https://huggingface.co/spaces/tu-nombre-usuario/omg-premium-tv`
 
 ## ⚙️ Configuración del Addon
@@ -98,7 +98,7 @@ Después de instalar el addon mediante Docker, sigue estos pasos para configurar
 Para actualizar el addon a la última versión:
 
 #### En Portainer:
-1. Ve al stack de OMG Premium TV
+1. Ve al stack de TV
 2. Haz clic en **Stop** para detener el stack
 3. Haz clic en **Remove** para eliminar los contenedores
 4. Haz clic en **Deploy** para recrear los contenedores con la última versión

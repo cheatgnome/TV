@@ -1,5 +1,7 @@
 const config = require('./config');
 const EPGManager = require('./epg-manager');
+const { buildEpgDescription } = require('./epg-utils');
+const { wrapLogoUrl } = require('./logo-utils');
 
 function normalizeId(id) {
     return id?.toLowerCase().replace(/[^\w.]/g, '').trim() || '';
@@ -15,44 +17,16 @@ function enrichWithDetailedEPG(meta, channelId, userConfig) {
     const normalizedId = normalizeId(channelId);
 
     const currentProgram = EPGManager.getCurrentProgram(normalizedId);
-
-
     const upcomingPrograms = EPGManager.getUpcomingPrograms(normalizedId);
+    const epgDescription = buildEpgDescription({
+        currentProgram,
+        upcomingPrograms,
+        upcomingLimit: 3
+    });
 
-    if (currentProgram) {
-        let description = [];
-
-        description.push('📺 ON NOW:', currentProgram.title);
-
-        if (currentProgram.description) {
-            description.push('', currentProgram.description);
-        }
-
-        description.push('', `⏰ ${currentProgram.start} - ${currentProgram.stop}`);
-
-        if (currentProgram.category) {
-            description.push(`🏷️ ${currentProgram.category}`);
-        }
-
-        if (upcomingPrograms?.length > 0) {
-            description.push('', '📅 UP NEXT:');
-            upcomingPrograms.forEach(program => {
-                description.push(
-                    '',
-                    `• ${program.start} - ${program.title}`
-                );
-                if (program.description) {
-                    description.push(`  ${program.description}`);
-                }
-                if (program.category) {
-                    description.push(`  🏷️ ${program.category}`);
-                }
-            });
-        }
-
-        meta.description = description.join('\n');
-        meta.releaseInfo = `${currentProgram.title} (${currentProgram.start})`;
-    } else {
+    if (epgDescription) {
+        meta.description = epgDescription;
+        meta.releaseInfo = currentProgram?.title || 'LIVE';
     }
 
     return meta;
@@ -89,9 +63,9 @@ async function metaHandler({ type, id, config: userConfig }) {
             name: channel.streamInfo?.tvg?.chno
                 ? `${channel.streamInfo.tvg.chno}. ${channel.name}`
                 : channel.name,
-            poster: channel.poster || channel.logo,
-            background: channel.background || channel.logo,
-            logo: channel.logo,
+            poster: wrapLogoUrl(channel.poster || channel.logo),
+            background: wrapLogoUrl(channel.background || channel.logo),
+            logo: wrapLogoUrl(channel.logo),
             description: '',
             releaseInfo: 'LIVE',
             genre: channel.genre,
@@ -106,7 +80,7 @@ async function metaHandler({ type, id, config: userConfig }) {
         };
 
         if ((!meta.poster || !meta.background || !meta.logo) && channel.streamInfo?.tvg?.id) {
-            const epgIcon = EPGManager.getChannelIcon(normalizeId(channel.streamInfo.tvg.id));
+            const epgIcon = wrapLogoUrl(EPGManager.getChannelIcon(normalizeId(channel.streamInfo.tvg.id)));
             if (epgIcon) {
                 meta.poster = meta.poster || epgIcon;
                 meta.background = meta.background || epgIcon;
